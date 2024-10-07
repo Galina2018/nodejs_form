@@ -1,36 +1,54 @@
 const express = require('express');
 
 const webserver = express();
-const port = 7381;
-const formOpen = '<form method="get" action="/form">';
-const formClose = '</form>';
-const btn = '<button type="submit">отправить</button>';
-const inputFieldName =
-  '<label for="name">Ваше имя: </label><input type="text" name="name" value="';
-const inputFieldAge =
-  '<label for="age">Ваш возраст: </label><input type="text" name="age" value="';
-const inputFieldFinish = '" />';
+const port = 8082;
 
+function removeHtml(data) {
+  if (!data) return data;
+  data
+    .toString()
+    .replaceAll('&', '')
+    .replaceAll('"', '')
+    .replaceAll("'", '')
+    .replaceAll('<', '')
+    .replaceAll('>', '');
+  return data;
+}
+
+const congregateForm = (fio, errors) => {
+  return `
+            ${errors ? 'есть ошибки, исправьте!' : ''}
+            <form action="/form2">
+            ${errors?.name || ''}<br />
+            Ваше имя (кириллица): <input type="text" name="name" 
+            value="${removeHtml(fio.name)}"></input><br /><br />
+            ${errors?.age || ''}<br />
+            Ваш возраст: <input type="text" name="age" 
+            value="${removeHtml(fio.age)}"></input><br /><br />
+            <button type="submit">отправить</button>
+            </form>`;
+};
 webserver.get('/form', (req, res) => {
+  res.send(congregateForm({ name: '', age: '' }, null));
+});
+webserver.get('/form2', (req, res) => {
+  const errors = {};
+  let flagError = false;
   let name = req.query.name;
   let age = req.query.age;
-  let msgName = '';
-  let msgAge = '';
-  if (!!parseInt(name) || name == 'undefined')
-    msgName = 'Введено некорректное имя';
-  if (!parseInt(age) || parseInt(age) > 150)
-    msgAge = 'Введено некорректное значение возраста';
-  if (
-    !parseInt(name) &&
-    name !== 'undefined' &&
-    !!parseInt(age) &&
-    parseInt(age) < 150
-  )
-    res.send(`Приветствую, ${name}! Ваш возраст ${age}`);
-  else
+  if (!name || !name.match(/^[А-Яа-я]+-?[А-Яа-я]*$/)) {
+    errors.name = 'Некорректное имя';
+    flagError = true;
+  }
+  if (!age || age > 150) {
+    errors.age = 'Некорректный возраст';
+    flagError = true;
+  }
+  if (!flagError)
     res.send(
-      `${formOpen}${inputFieldName}${name}${inputFieldFinish} ${btn} ${msgName}<br />${inputFieldAge}${age}${inputFieldFinish} ${btn} ${msgAge}${formClose}`
+      `Приветствую, ${removeHtml(name)}! Ваш возраст ${removeHtml(age)}`
     );
+  else res.send(congregateForm(req.query, errors));
 });
 
 webserver.listen(port, () => {

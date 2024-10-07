@@ -17,19 +17,19 @@ function removeHtml(data) {
 
 const congregateForm = (fio, errors) => {
   return `
-            ${errors ? 'есть ошибки, исправьте!' : ''}
+            ${errors.name || errors.age ? 'есть ошибки, исправьте!' : ''}
             <form action="/form2">
-            ${errors?.name || ''}<br />
+            ${errors.name || ''}<br />
             Ваше имя (кириллица): <input type="text" name="name" 
             value="${removeHtml(fio.name)}"></input><br /><br />
-            ${errors?.age || ''}<br />
+            ${errors.age || ''}<br />
             Ваш возраст: <input type="text" name="age" 
             value="${removeHtml(fio.age)}"></input><br /><br />
             <button type="submit">отправить</button>
             </form>`;
 };
 webserver.get('/form', (req, res) => {
-  res.send(congregateForm({ name: '', age: '' }, null));
+  res.send(congregateForm({ name: '', age: '' }, {}));
 });
 webserver.get('/form2', (req, res) => {
   const errors = {};

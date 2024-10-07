@@ -6,7 +6,6 @@ const port = 7381;
 function removeHtml(data) {
   if (!data) return data;
   data
-    .toString()
     .replaceAll('&', '')
     .replaceAll('"', '')
     .replaceAll("'", '')
@@ -40,7 +39,7 @@ webserver.get('/form2', (req, res) => {
     errors.name = 'Некорректное имя';
     flagError = true;
   }
-  if (!age || age > 150) {
+  if (!age || !age.match(/^\d+$/) || age > 150) {
     errors.age = 'Некорректный возраст';
     flagError = true;
   }

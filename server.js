@@ -5,18 +5,19 @@ const port = 7381;
 
 function removeHtml(data) {
   if (!data) return data;
-  data
-    .replaceAll('&', '')
-    .replaceAll('"', '')
-    .replaceAll("'", '')
-    .replaceAll('<', '')
-    .replaceAll('>', '');
-  return data;
+  const newdata = data
+    .toString()
+    .replace(/&/g, '')
+    .replace(/"/g, '')
+    .replace(/'/g, '')
+    .replace(/</g, '')
+    .replace(/>/g, '');
+  return newdata;
 }
 
 const congregateForm = (fio, errors) => {
   return `
-            ${errors.name || errors.age ? 'есть ошибки, исправьте!' : ''}
+            ${errors.name || errors.age ? 'Найдены некорректные символы' : ''}
             <form action="/form2">
             ${errors.name || ''}<br />
             Ваше имя (кириллица): <input type="text" name="name" 
@@ -36,11 +37,11 @@ webserver.get('/form2', (req, res) => {
   let name = req.query.name;
   let age = req.query.age;
   if (!name || !name.match(/^[А-Яа-я]+-?[А-Яа-я]*$/)) {
-    errors.name = 'Некорректное имя';
+    errors.name = 'Некорректные символы в имени удалены';
     flagError = true;
   }
-  if (!age || !age.match(/^\d+$/) || age > 150) {
-    errors.age = 'Некорректный возраст';
+  if (!age || !age.match(/^\d+$/)) {
+    errors.age = 'Некорректные символы в возрасте удалены';
     flagError = true;
   }
   if (!flagError)

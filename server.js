@@ -6,13 +6,14 @@ const port = 7381;
 
 function removeHtml(data) {
   if (!data) return data;
-  data
-    .replaceAll('&', '')
-    .replaceAll('"', '')
-    .replaceAll("'", '')
-    .replaceAll('<', '')
-    .replaceAll('>', '');
-  return data;
+  const newdata = data
+    .toString()
+    .replace(/&/g, '')
+    .replace(/"/g, '')
+    .replace(/'/g, '')
+    .replace(/</g, '')
+    .replace(/>/g, '');
+  return newdata;
 }
 
 const congregateForm = (fio, errors) => {
